@@ -1,4 +1,5 @@
 ﻿using Domain.APIModels;
+using Infrastructure.Models;
 using Microsoft.IdentityModel.Tokens;
 using RESTfulAPI.EntityModels;
 using System;
@@ -11,7 +12,7 @@ namespace Domain.Helpers
 {
     public class ProductHelper
     {
-        public string ValidateProduct(Product product, List<Product>products)
+        public string ValidateProduct(ProductModel product, List<ProductModel> products)
         {
             product.Name = product.Name.Trim();
             var uniqueChecker = products.FirstOrDefault(x => x.Name.ToLower() == product.Name.ToLower());
@@ -29,32 +30,32 @@ namespace Domain.Helpers
             }
             return "";
         }
-        public IEnumerable<Product> FilterProducts(IEnumerable<Product> products, FilterModel filterModel)
+        public List<ProductModel> FilterProducts(List<ProductModel> products, FilterModel filterModel)
         {
             int result = 0;
             if (!filterModel.Contains.IsNullOrEmpty())
             {
-                products = products.Where(x => x.Name.ToLower().Contains(filterModel.Contains.ToLower()));
+                products = products.Where(x => x.Name.ToLower().Contains(filterModel.Contains.ToLower())).ToList();
             }
             if (Int32.TryParse(filterModel.GreaterThan, out result))
             {
-                products = products.Where(x => x.Price > result);
+                products = products.Where(x => x.Price > result).ToList();
             }
             if (Int32.TryParse(filterModel.LessThan, out result))
             {
-                products = products.Where(x => x.Price < result);
+                products = products.Where(x => x.Price < result).ToList();
             }
             if (Int32.TryParse(filterModel.EqualToo, out result))
             {
-                products = products.Where(x => x.Price == result);
+                products = products.Where(x => x.Price == result).ToList();
             }
             if (Int32.TryParse(filterModel.Limit, out result))
             {
-                products = products.Take(result);
+                products = products.Take(result).ToList();
             }
             if ( Int32.TryParse(filterModel.OffSet, out result))
             {
-                products = products.Skip(result);
+                products = products.Skip(result).ToList();
             }
             return products;
         }
@@ -62,23 +63,23 @@ namespace Domain.Helpers
         {
             int result = 0;
             string validationMessage = "Cannot parse ";
-            if (!Int32.TryParse(filterModel.GreaterThan, out result))
+            if (filterModel.GreaterThan != null && !Int32.TryParse(filterModel.GreaterThan, out result))
             {
                 return validationMessage + "greater than";
             }
-            if (!Int32.TryParse(filterModel.LessThan, out result))
+            if (filterModel.LessThan != null && !Int32.TryParse(filterModel.LessThan, out result))
             {
                 return validationMessage + "less than";
             }
-            if (!Int32.TryParse(filterModel.EqualToo, out result))
+            if (filterModel.EqualToo != null && !Int32.TryParse(filterModel.EqualToo, out result))
             {
                 return validationMessage + "equal too";
             }
-            if (!Int32.TryParse(filterModel.Limit, out result))
+            if (filterModel.Limit != null && !Int32.TryParse(filterModel.Limit, out result))
             {
                 return validationMessage + "limit";
             }
-            if (!Int32.TryParse(filterModel.OffSet, out result))
+            if (filterModel.OffSet != null && !Int32.TryParse(filterModel.OffSet, out result))
             {
                 return validationMessage + "offset";
             }

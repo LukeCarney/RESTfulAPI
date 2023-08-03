@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Infrastructure.Models;
 
 namespace Infrastructure.Services
 {
@@ -19,31 +20,37 @@ namespace Infrastructure.Services
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> GetProducts()
+        public async Task<IEnumerable<ProductModel>> GetProducts()
         {
-            return await _context.Products.ToListAsync();
+            return await _context.Products.Select(ProductModel.Projection).ToListAsync();
 
         }
-        public IEnumerable<Product> GetProductsFilter(string Like)
-        {
-            return _context.Products.FromSqlRaw("Select * from products  where name like '%" + Like+"%'");
+        //public IEnumerable<ProductModel> GetProductsFilter(string Like)
+        //{
+        //    return _context.Products.FromSqlRaw("Select * from products  where name like '%" + Like+"%'");
 
-        }
-        public async Task<Product>GetProduct(int id)
+        //}
+        public async Task<ProductModel>GetProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if(product == null)
+            var product = _context.Products.Where(x=>x.Id == id);
+            var productModel = product.Select(ProductModel.Projection).SingleOrDefault();
+            if (productModel == null)
             {
                 return null;
             }
-            return product;
+            return productModel;
         }
-        public async Task<Product> AddProduct(Product product)
+        public async Task<ProductModel> AddProduct(ProductModel product)
         {
     
             try
             {
-                await _context.Products.AddAsync(product);
+                await _context.Products.AddAsync(new Product { 
+                    
+                    Id = product.Id,
+                    Price = product.Price,
+                    Name = product.Name
+                });
                 await _context.SaveChangesAsync();
             }
             catch (Exception ex)
@@ -53,19 +60,25 @@ namespace Infrastructure.Services
 
             return product; 
         }
-        public async Task<Product> UpdateProduct(int id, Product product)
+        public async Task<bool> UpdateProduct(int id, ProductModel product)
         {
-            _context.Entry(product).State = EntityState.Modified;
+            _context.Entry(new Product
+            {
+
+                Id = id,
+                Price = product.Price,
+                Name = product.Name
+            }).State = EntityState.Modified;
             try
             {
                 await _context.SaveChangesAsync();
-                return product;
+                return true;
             }
             catch (DbUpdateConcurrencyException)
             {
                 if (!ProductExists(id))
                 {
-                    return null ;
+                    return false ;
                 }
                 else
                 {

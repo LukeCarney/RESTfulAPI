@@ -11,7 +11,7 @@ using RESTfulAPI;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230803095321_AddProductTable")]
+    [Migration("20230803171437_AddProductTable")]
     partial class AddProductTable
     {
         /// <inheritdoc />

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Infrastructure.Models;
+using Microsoft.EntityFrameworkCore;
 using RESTfulAPI.EntityModels;
 using System;
 using System.Collections.Generic;
@@ -10,11 +11,11 @@ namespace Infrastructure.IServices
 {
     public interface IProductService
     {
-        Task<IEnumerable<Product>> GetProducts();
-        IEnumerable<Product> GetProductsFilter(string Like);
-        Task<Product> GetProduct(int id);
-        Task<Product> AddProduct(Product product);
-        Task<Product> UpdateProduct(int id, Product product);
+        Task<IEnumerable<ProductModel>> GetProducts();
+        //IEnumerable<ProductModel> GetProductsFilter(string Like);
+        Task<ProductModel> GetProduct(int id);
+        Task<ProductModel> AddProduct(ProductModel product);
+        Task<bool> UpdateProduct(int id, ProductModel product);
         Task<bool> DeleteProduct(int id);
     }
 }

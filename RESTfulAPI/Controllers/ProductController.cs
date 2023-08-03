@@ -1,6 +1,7 @@
 ﻿using Domain.APIModels;
 using Domain.Helpers;
 using Infrastructure.IServices;
+using Infrastructure.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -37,7 +38,7 @@ namespace RESTfulAPI.Controllers
             {
                 return BadRequest(validate);
             }
-            products = productHelper.FilterProducts(products, filterModel);
+            products = productHelper.FilterProducts(products.ToList(), filterModel).ToList();
             if(products.Count() == 0)
             {
                 return NotFound("No products match your parameters.");
@@ -54,8 +55,12 @@ namespace RESTfulAPI.Controllers
             return Ok(await _productService.GetProduct(id));
         }
         [HttpPut("{id}")]
-        public async Task<ActionResult> Put(int id, Product product)
+        public async Task<ActionResult> Put(int id, ProductModel product)
         {
+            if (product.Id != id)
+            {
+                return BadRequest("Product Ids need to match.");
+            }
             if (await _productService.GetProduct(id) == null)
             {
                 return NotFound("Product Not Found");
@@ -73,7 +78,7 @@ namespace RESTfulAPI.Controllers
             return Ok(product);
         }
         [HttpPost]
-        public async Task<ActionResult> Post(Product product)
+        public async Task<ActionResult> Post(ProductModel product)
         {
             var products = await _productService.GetProducts();
             string validationMessage = productHelper.ValidateProduct(product, products.ToList());
